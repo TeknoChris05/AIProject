@@ -1,0 +1,5 @@
+pydantic>=2.6
+python-dateutil>=2.9
+rapidfuzz>=3.6
+pandas>=2.2
+streamlit>=1.33
