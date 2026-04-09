@@ -1,3 +1,19 @@
+from __future__ import annotations
+from pydantic import BaseModel
+
+
+class PipelineConfig(BaseModel):
+    max_lines: int = 200_000
+
+    # Timeline
+    timeline_limit: int = 200
+
+    # Brute force (SSH failed logins)
+    brute_force_fail_threshold: int = 8
+    brute_force_window_minutes: int = 10
+
+    # Syslog parsing (optional)
+    include_syslog: bool = False
 class Settings:
     FAILED_LOGIN_THRESHOLD = 5
     SUSPICIOUS_IPS = [

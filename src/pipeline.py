@@ -1,40 +1,59 @@
-from .config import settings
-from .io_utils import load_incident_data
-from .rules import apply_detection_rules
-from .models import analyze_with_model
-from .reporting import generate_report
+from __future__ import annotations
+from datetime import datetime
+from typing import List, Optional
+
+from .config import PipelineConfig
+from .models import Event, Report, Finding
+from .parsers.linux_auth import parse_auth_lines
+from .io_utils import read_text_lines
+from .rules import rule_bruteforce, rule_sudo_suspicious, rule_account_changes
+from .reporting import build_executive_summary, recommended_actions
 
 
-class IncidentPipeline:
-    def __init__(self):
-        self.config = settings
+def run_pipeline(
+    auth_log_path: str,
+    cfg: Optional[PipelineConfig] = None,
+) -> Report:
+    cfg = cfg or PipelineConfig()
 
-    def run(self, input_path: str, output_path: str):
-        print("Starting Incident Analysis Pipeline")
+    # Read log file
+    lines = read_text_lines(auth_log_path, max_lines=cfg.max_events)
 
-        incidents = load_incident_data(input_path)
-        print(f"Loaded {len(incidents)} records")
+    # Parse events
+    events: List[Event] = parse_auth_lines(lines, source=auth_log_path)
 
-        rule_results = apply_detection_rules(incidents)
-        print("Rule-based analysis complete")
+    # Sort events
+    events_sorted = sorted(events, key=lambda e: e.ts)
 
-        model_results = analyze_with_model(incidents)
-        print("Model analysis complete")
+    start = events_sorted[0].ts if events_sorted else None
+    end = events_sorted[-1].ts if events_sorted else None
 
-        combined_results = []
-        for i, incident in enumerate(incidents):
-            combined_results.append({
-                "incident": incident,
-                "rule_analysis": rule_results[i] if i < len(rule_results) else None,
-                "model_analysis": model_results[i] if i < len(model_results) else None
-            })
+    # Run detection rules
+    findings: List[Finding] = []
+    findings += [r.finding for r in rule_bruteforce(events, cfg)]
+    findings += [r.finding for r in rule_sudo_suspicious(events)]
+    findings += [r.finding for r in rule_account_changes(events)]
 
-        generate_report(combined_results, output_path)
+    # Build timeline
+    suspicious = [e for e in events_sorted if e.severity in ("medium", "high")]
+    timeline = suspicious[-cfg.timeline_limit:] if suspicious else events_sorted[-cfg.timeline_limit:]
 
-        print("Pipeline complete")
-        return combined_results
+    # Build report
+    report = Report(
+        title="IncidentLens: Linux Incident Triage Report",
+        generated_at=datetime.now(),
+        time_range_start=start,
+        time_range_end=end,
+        executive_summary=build_executive_summary(findings, start, end),
+        key_findings=sorted(
+            findings,
+            key=lambda f: {"high": 0, "medium": 1, "low": 2}.get(f.severity, 3),
+        ),
+        timeline=timeline,
+        recommended_actions=recommended_actions(findings),
+        notes=[
+            "MVP uses parsing + heuristic detection. Extend with networking logs or AI later.",
+        ],
+    )
 
-
-def run_pipeline(input_path: str, output_path: str):
-    pipeline = IncidentPipeline()
-    return pipeline.run(input_path, output_path)
+    return report
