@@ -10,7 +10,7 @@ Prerequisites:
 import json, re, time, requests
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL      = "llama3.2"   # swap to "mistral" or "llama3.1" if preferred
+MODEL      = "llama3.2"
 STRATEGIES = ["zero_shot", "few_shot", "chain_of_thought"]
 
 
@@ -71,7 +71,7 @@ def classify_email(email_text: str, strategy: str, retries: int = 3) -> dict:
         "model":    MODEL,
         "messages": [{"role": "user", "content": prompt}],
         "stream":   False,
-        "format":   "json",          # ← ADD THIS LINE — forces Ollama to output valid JSON
+        "format":   "json",          
         "options":  {"temperature": 0.1, "num_predict": 400},
     }
 
