@@ -1,1 +1,1 @@
-Our project is a Linux Cybersecurity Incident Assistant that automatically analyzes Linux authentication logs to detect potential security incidents and generate an incident report.
+We created an AI-powered phishing detector, using Llama 3.2. The model utilizes 3 different strategies, each giving the model a various amount of information regarding phishing email detection. Our model determines what is phishing, and what is legitimate, then creates visual data models that indicate the overall performance of each of the 3 models.
