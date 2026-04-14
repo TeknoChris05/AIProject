@@ -48,7 +48,7 @@ ollama serve
 
 ### 4. Create a Python virtual environment
 ```bash
-cd "/home/christopher/Documents/Artifical Intelligence Class/AIProject"
+cd "/home/user/PhishSense"
 python3 -m venv venv
 source venv/bin/activate
 ```
