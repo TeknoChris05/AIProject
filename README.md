@@ -18,6 +18,8 @@ Our model is tested with 3 different prompting strategies, each giving a varying
 
 This not only tests our model's ability to detect phishing emails, but also showcases which strategy works best.
 
+# Evaluation
+
 Our model evaluates its results through 4 measured classifcation metrics.
 
 **Accuracy** - What percentage did it get right overall
