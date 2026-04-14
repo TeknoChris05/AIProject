@@ -11,15 +11,21 @@ PhishSense utilizes Llama 3.2 via Ollama. This runs completely offline on the us
 Our model is tested with 3 different prompting strategies, each giving a varying amount of prior information for the model to work with.
 
 **Zero-Shot** - Ask the model to classify without hints
+
 **Few-Shot** - Give the model 4 examples before testing
+
 **Chain-of-Thought** - Make the model reason step-by-step through 5 indicators before answering
 
 This not only tests our model's ability to detect phishing emails, but also showcases which strategy works best.
 
 Our model evaluates its results through 4 measured classifcation metrics.
+
 **Accuracy** - What percentage did it get right overall
+
 **Precision** - Of the ones it called phishing, how many actually were
+
 **Recall** - Of all the actual phishing emails, how many did it catch
+
 **F1 Score** - A combined score that balances precision and recall.
 
 # How to Run
